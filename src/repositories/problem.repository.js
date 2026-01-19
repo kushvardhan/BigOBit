@@ -1,75 +1,57 @@
-const {Problem} = require("../models");
+const { Problem } = require("../models");
+const mongoose = require("mongoose");
+const BadRequest = require("../errors/badRequest.error");
 
-class ProblemRepository{
+class ProblemRepository {
 
-    async createProblem(problemData){
-        try{
-            const problem = await Problem.create({
-                title:problemData.title,
-                description:problemData.description,
-                testCases : (problemData.testCases) ? problemData.testCases : []
+    async createProblem(problemData) {
+        return await Problem.create({
+            title: problemData.title,
+            description: problemData.description,
+            testCases: problemData.testCases || [],
+        });
+    }
+
+    async getProblem(problemId) {
+        if (!mongoose.Types.ObjectId.isValid(problemId)) {
+            throw new BadRequest("id", {
+                reason: "Invalid MongoDB ObjectId",
             });
-            console.log("FROM REPO:",problem);
-            return problem;
-        }catch(err){
-            console.log(err);
-            throw err;
         }
+
+        return await Problem.findById(problemId);
     }
 
-    async getProblem(problemId){
-        try{
-            const problem = await Problem.findById(problemId);
-            console.log("FROM REPO:",problem);
-            return problem;
-        }catch(err){
-            console.log(err);
-            throw err;
-        }
+    async getProblems() {
+        return await Problem.find();
     }
-
-    async getProblems(){
-        try{
-            const problems = await Problem.find();
-            console.log("FROM REPO:",problems);
-            return problems;
-        }catch(err){
-            console.log(err);
-            throw err;
-        }
-    }
-
-    async deleteProblem(problemId) {
-    try {
-        const problem = await Problem.findByIdAndDelete(problemId);
-        console.log("FROM REPO:",problem);
-        return problem;
-    } catch (err) {
-        console.log(err);
-        throw err;
-    }
-}
-
 
     async updateProblem(problemId, updateData) {
-    try {
-        const problem = await Problem.findByIdAndUpdate(
+        if (!mongoose.Types.ObjectId.isValid(problemId)) {
+            throw new BadRequest("id", {
+                reason: "Invalid MongoDB ObjectId",
+            });
+        }
+
+        return await Problem.findByIdAndUpdate(
             problemId,
             updateData,
             {
-                new: true,          // return updated doc
-                runValidators: true
+                new: true,
+                runValidators: true,
             }
         );
-        console.log("FROM REPO:",problem);
-        return problem;
-    } catch (err) {
-        console.log(err);
-        throw err;
     }
-}
 
+    async deleteProblem(problemId) {
+        if (!mongoose.Types.ObjectId.isValid(problemId)) {
+            throw new BadRequest("id", {
+                reason: "Invalid MongoDB ObjectId",
+            });
+        }
 
+        return await Problem.findByIdAndDelete(problemId);
+    }
 }
 
 module.exports = ProblemRepository;
