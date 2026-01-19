@@ -1,22 +1,57 @@
-const {Problem} = require("../models");
+const { Problem } = require("../models");
+const mongoose = require("mongoose");
+const BadRequest = require("../errors/badRequest.error");
 
-class ProblemRepository{
+class ProblemRepository {
 
-    async createProblem(problemData){
-        try{
-            const problem = await Problem.create({
-                title:problemData.title,
-                description:problemData.description,
-                testCases : (problemData.testCases) ? problemData.testCases : []
-            });
-
-            return problem;
-        }catch(err){
-            console.log(err);
-            throw err;
-        }
+    async createProblem(problemData) {
+        return await Problem.create({
+            title: problemData.title,
+            description: problemData.description,
+            testCases: problemData.testCases || [],
+        });
     }
 
+    async getProblem(problemId) {
+        if (!mongoose.Types.ObjectId.isValid(problemId)) {
+            throw new BadRequest("id", {
+                reason: "Invalid MongoDB ObjectId",
+            });
+        }
+
+        return await Problem.findById(problemId);
+    }
+
+    async getProblems() {
+        return await Problem.find();
+    }
+
+    async updateProblem(problemId, updateData) {
+        if (!mongoose.Types.ObjectId.isValid(problemId)) {
+            throw new BadRequest("id", {
+                reason: "Invalid MongoDB ObjectId",
+            });
+        }
+
+        return await Problem.findByIdAndUpdate(
+            problemId,
+            updateData,
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
+    }
+
+    async deleteProblem(problemId) {
+        if (!mongoose.Types.ObjectId.isValid(problemId)) {
+            throw new BadRequest("id", {
+                reason: "Invalid MongoDB ObjectId",
+            });
+        }
+
+        return await Problem.findByIdAndDelete(problemId);
+    }
 }
 
 module.exports = ProblemRepository;
