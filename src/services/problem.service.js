@@ -79,6 +79,58 @@ class ProblemService {
 
         return deletedProblem;
     }
+
+    async getProblem(problemId){
+        try{
+            const problem = await this.problemRepository.getProblem(problemId);
+            console.log("FROM service:",problem);
+
+            return problem;
+        }catch(err){
+            console.log(err);
+            throw err;
+        }
+    }
+
+    async getProblems(){
+        try{
+            const problems = await this.problemRepository.getProblems();
+            console.log("FROM service:",problems);
+            return problems;
+        }catch(err){
+            console.log(err);
+            throw err;
+        }
+    }
+
+    async deleteProblem(problemId) {
+    try {
+        const problem = await this.problemRepository.deleteProblem(problemId);
+        console.log("FROM service:",problem);
+        return problem;
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+
+    async updateProblem(problemId, updateData) {
+    try {
+        if (updateData.description) {
+            updateData.description = sanitizeMarkDownContent(updateData.description);
+        }
+
+        const updatedProblem =
+            await this.problemRepository.updateProblem(problemId, updateData);
+        console.log("FROM service:",updatedProblem);
+        return updatedProblem;
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 }
 
 module.exports = ProblemService;
